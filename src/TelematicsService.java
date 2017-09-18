@@ -1,17 +1,13 @@
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.util.*;
+
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
+
 
 
 public class TelematicsService {
-
-    private VehicleInfo vehicleInfo;
-
-    public TelematicsService (VehicleInfo newVehicle) {
-    }
 
 
     public static void report (VehicleInfo vehicleInfo) {
@@ -20,12 +16,22 @@ public class TelematicsService {
 //
 
         try {
+
+
             ObjectMapper mapper = new ObjectMapper ();
             File carFile = new File (vehicleInfo.getVIN () + ".json");
             String json = mapper.writeValueAsString (vehicleInfo);
 //            System.out.println (String.format ("Hey dude so your VIN is %s, that's great! NOW you gotta make a file that's a .json file and return an html template dummy.", vehicleInfo.VIN));
             //this is working
-            List<VehicleInfo> vinfo = new ArrayList<> ();
+
+            //new code
+            FileWriter fileWriter;
+            fileWriter = new FileWriter (carFile);
+            fileWriter.write (json);
+            fileWriter.close ();
+
+
+            List<VehicleInfo> jsonVehicles = new ArrayList<> ();
 
             File file = new File (".");
 
@@ -34,90 +40,113 @@ public class TelematicsService {
                 if (f.getName ().endsWith (".json")) {
                     // Now you have a File object named "f".
                     // You can use this to create a new instance of Scanner
+
                     VehicleInfo vi = mapper.readValue (json, VehicleInfo.class);
-                    String viWrite = mapper.writer ().writeValueAsString (vi);
-                    vinfo.add (vi);
-                    System.out.println ("Json information is " + vehicleInfo.getVIN () + vehicleInfo.getOdometer ());
+                    System.out.println ("Json information is " + f.getName () + String.valueOf (vi));
 
-                }
+                        jsonVehicles.add (vi);
 
 
-            }
-
-
-            String odometer = String.format ("%.1s", vehicleInfo.odometer);
-            String consumption = String.format ("%.5s", vehicleInfo.consumption);
-            String lastReading = String.format ("%.5s", vehicleInfo.lastReading);
-            String liters = String.format ("%.5s", vehicleInfo.engineSize);
-
-            String basichtml = "<html>\n" +
-                    "<title>Vehicle Telematics Dashboard</title>\n" +
-                    "<body>\n" +
-                    "<h1 align=\"center\">Averages for # vehicles</h1>\n" +
-                    "<table align=\"center\">\n" +
-                    "    <tr>\n" +
-                    "        <th>Odometer (miles) |</th><th>Consumption (gallons) |</th><th>Last Oil Change |</th><th>Engine Size (liters)</th>\n" +
-                    "    </tr>\n" +
-                    "    <tr>\n" +
-                    "        <td align=\"center\">#</td><td align=\"center\">#</td><td align=\"center\">#</td align=\"center\"><td align=\"center\">#</td>\n" +
-                    "    </tr>\n" +
-                    "</table>\n" +
-                    "<h1 align=\"center\">History</h1>\n" +
-                    "<table align=\"center\" border=\"1\">\n" +
-                    "    <tr>\n" +
-                    "        <th>VIN</th><th>Odometer (miles)</th><th>Consumption (gallons)</th><th>Last Oil Change</th><th>Engine Size (liters)</th>\n" +
-                    "    </tr>\n" +
-                    "    <tr>\n" +
-                    "        <td align=\"center\">#</td><td align=\"center\">#</td><td align=\"center\">#</td><td align=\"center\">#</td align=\"center\"><td align=\"center\">#</td>\n" +
-                    "    </tr>\n" +
-                    "    <tr>\n";
-            for (VehicleInfo vehicle : vinfo) {
-
-                        String vHTML = String.format ("\"        <td align=\\\"center\\\">+\" +\n" +
-                                            odometer + " +\n" +
-                        "                    \"</td><td align=\\\"center\\\">\"+\n" +
-                                            consumption + "\n" +
-                        "                    \"</td><td align=\\\"center\\\">\"+\n" +
-                        "                    " +
-                                            lastReading + "\n" +
-                        "                    \"</td><td align=\\\"center\\\">345</td align=\\\"center\\\"><td align=\\\"center\\\">\"+\n" +
-                        "                    liters +\n" +
-                        "                    \"</td>\\n\" +\n" +
-                        "                    \"    </tr>\\n\" +", vehicle);
-                basichtml += vHTML;
-            }
-
-            String end ="</table>\n" +
-                    "</body>\n" +
-                    "</html>";
-                basichtml += end;
-
-            String htmlDirection = "dashboard.html";
-            File htmlFile = new File(htmlDirection);
-            FileOutputStream stream = new FileOutputStream(htmlFile, false);
-            byte[] myBytes = basichtml.getBytes();
-            stream.write(myBytes);
-            stream.close();
-
-        } catch (JsonProcessingException e) {
-            e.printStackTrace ();
-        } catch (IOException g) {
-            g.printStackTrace ();
-        }
-
-    }
-
-    //add method to get the info from json into list
+//                    for (VehicleInfo vinfo : jsonVehicles) {
 //
-//    public static List<VehicleInfo> transfer (VehicleInfo vi) throws IOException {
-//        File file = new File (".");
-//        List<VehicleInfo> vinfo = new ArrayList<> ();
-//        for (File x : file.listFiles ()) {
-//            if (x.getName ().endsWith (".json")) {
-//                ObjectMapper lemapper = new ObjectMapper ();
-//                vinfo.add (lemapper.readValue (x, VehicleInfo.class));
-//            }
-//        }
-//        return vinfo;
-//    }
+//                        List<Double> vehicleAverages = new ArrayList<> ();
+//                    Double odometerValue = 0.0;
+//                    Double consumptionValue = 0.0;
+//                    Double lastReadingValue = 0.0;
+//                    Double engineSizeValue = 0.0;
+//
+//
+//
+//                        int total = jsonVehicles.size ();
+//                        Double avgOdometer = odometerValue / total;
+//                        Double avgConsumption = consumptionValue / total;
+//                        Double avgLastReading = lastReadingValue / total;
+//                        Double avgEngineSize = engineSizeValue / total;
+//                        vehicleAverages.add (avgOdometer);
+//                        vehicleAverages.add (avgConsumption);
+//                        vehicleAverages.add (avgLastReading);
+//                        vehicleAverages.add (avgEngineSize);
+//                        System.out.println (vehicleAverages);
+//                    }
+
+
+                    int totalCars = jsonVehicles.size ();
+                    String html = "";
+                    String topHtml = "<html>\n" +
+                            "<title>Vehicle Telematics Dashboard</title>\n" +
+                            "<body>\n" +
+                            "<h1 align=\"center\">Averages for" +
+                            " " +
+                            totalCars + " " +
+                            "vehicles</h1>\n" +
+                            "<table align=\"center\">\n" +
+                            "    <tr>\n" +
+                            "        <th>Odometer (miles) |</th><th>Consumption (gallons) |</th><th>Last Oil Change |</th><th>Engine Size (liters)</th>\n" +
+                            "    </tr>\n" +
+                            "    <tr>\n" +
+                            "        <td align=\"center\">#</td><td align=\"center\">#</td><td align=\"center\">#</td><td align=\"center\">#</td>\n" +
+                            "    </tr>\n" +
+                            "</table>\n" +
+                            "<h1 align=\"center\">History</h1>\n" +
+                            "<table align=\"center\" border=\"1\">\n" +
+                            "    <tr>\n" +
+                            "        <th>VIN</th><th>Odometer (miles)</th><th>Consumption (gallons)</th><th>Last Oil Change</th><th>Engine Size (liters)</th>\n" +
+                            "    </tr>";
+
+                    html += topHtml;
+
+
+
+                    for (VehicleInfo vehicle : jsonVehicles) {
+                        String vin = String.format ("%.5s", vehicle.getVIN ());
+                        String odometer = String.format ("%.5s", vehicle.getOdometer ());
+                        String consumption = String.format ("%.5s", vehicle.getConsumption ());
+                        String lastReading = String.format ("%.5s", vehicle.getLastReading ());
+                        String liters = String.format ("%.5s", vehicle.getEngineSize ());
+
+                        String vHTML = "<tr>\n" +
+                                "        <td align=\"center\">" +
+                                odometer +
+                                "</td><td align=\"center\">"+
+                                consumption +
+                                "</td><td align=\"center\">" +
+                                lastReading +
+                                "</td><td align=\"center\">" +
+                                liters +
+                                "</td>\n" +
+                                " </tr>\n";
+
+                        Double odometerValue = vehicle.getOdometer ();
+                        Double consumptionValue = vehicle.getConsumption ();
+                        Double lastReadingValue = vehicle.getLastReading ();
+                        Double engineSizeValue = vehicle.getEngineSize ();
+
+                        html += vHTML;
+                    }
+
+                    String endHtml = "</table>\n" +
+                            "</body>\n" +
+                            "</html>";
+                    html += endHtml;
+                    try {
+                        String htmlDirection = "dashboard.html";
+                        File htmlFile = new File (htmlDirection);
+                        FileOutputStream stream = new FileOutputStream (htmlFile, false);
+                        byte[] myBytes = html.getBytes ();
+                        stream.write (myBytes);
+                        stream.close ();
+                    }catch(IOException e){
+                        e.printStackTrace ();
+                    }
+
+                    }
+                }
+            }
+          catch (JsonProcessingException e) {
+        e.printStackTrace ();
+    } catch (IOException g) {
+        g.printStackTrace ();
+    }
+    }
 }
+
