@@ -99,8 +99,8 @@ public class TelematicsService {
 
                     for (VehicleInfo vehicle : jsonVehicles) {
                         String vin = String.format ("%.5s", vehicle.getVIN ());
-                        String odometer = String.format ("%.5s", vehicle.getOdometer ());
-                        String consumption = String.format ("%.5s", vehicle.getConsumption ());
+                        String odometer = String.format ("%.5s", vi.getOdometer ());
+                        String consumption = String.format ("%.5s", vi.getConsumption ());
                         String lastReading = String.format ("%.5s", vehicle.getLastReading ());
                         String liters = String.format ("%.5s", vehicle.getEngineSize ());
 
@@ -129,12 +129,12 @@ public class TelematicsService {
                             "</html>";
                     html += endHtml;
                     try {
-                        String htmlDirection = "dashboard.html";
-                        File htmlFile = new File (htmlDirection);
-                        FileOutputStream stream = new FileOutputStream (htmlFile, false);
-                        byte[] myBytes = html.getBytes ();
-                        stream.write (myBytes);
-                        stream.close ();
+
+                        File htmlFile = new File("dashboard.html");
+                        FileWriter fileWriterHTML = new FileWriter(htmlFile);
+                        fileWriterHTML.write(html);
+                        fileWriterHTML.flush();
+                        fileWriterHTML.close();
                     }catch(IOException e){
                         e.printStackTrace ();
                     }
