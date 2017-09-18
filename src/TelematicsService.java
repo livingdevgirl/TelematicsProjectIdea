@@ -2,7 +2,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.*;
-
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class TelematicsService {
@@ -24,7 +25,7 @@ public class TelematicsService {
             String json = mapper.writeValueAsString (vehicleInfo);
 //            System.out.println (String.format ("Hey dude so your VIN is %s, that's great! NOW you gotta make a file that's a .json file and return an html template dummy.", vehicleInfo.VIN));
             //this is working
-
+            List<VehicleInfo> vinfo = new ArrayList<> ();
 
             File file = new File (".");
 
@@ -35,7 +36,7 @@ public class TelematicsService {
                     // You can use this to create a new instance of Scanner
                     VehicleInfo vi = mapper.readValue (json, VehicleInfo.class);
                     String viWrite = mapper.writer ().writeValueAsString (vi);
-
+                    vinfo.add (vi);
                     System.out.println ("Json information is " + vehicleInfo.getVIN () + vehicleInfo.getOdometer ());
 
                 }
@@ -49,7 +50,7 @@ public class TelematicsService {
             String lastReading = String.format ("%.5s", vehicleInfo.lastReading);
             String liters = String.format ("%.5s", vehicleInfo.engineSize);
 
-            String basichtml = String.format("<html>\n" +
+            String basichtml = "<html>\n" +
                     "<title>Vehicle Telematics Dashboard</title>\n" +
                     "<body>\n" +
                     "<h1 align=\"center\">Averages for # vehicles</h1>\n" +
@@ -69,21 +70,27 @@ public class TelematicsService {
                     "    <tr>\n" +
                     "        <td align=\"center\">#</td><td align=\"center\">#</td><td align=\"center\">#</td><td align=\"center\">#</td align=\"center\"><td align=\"center\">#</td>\n" +
                     "    </tr>\n" +
-                    "    <tr>\n" +
-                    "        <td align=\"center\">+" +
-                    odometer +
-                    "</td><td align=\"center\">"+
-                    consumption+
-                    "</td><td align=\"center\">"+
-                    lastReading +
-                    "</td><td align=\"center\">345</td align=\"center\"><td align=\"center\">"+
-                    liters +
-                    "</td>\n" +
-                    "    </tr>\n" +
-                    "</table>\n" +
-                    "</body>\n" +
-                    "</html>", vehicleInfo);
+                    "    <tr>\n";
+            for (VehicleInfo vehicle : vinfo) {
 
+                        String vHTML = String.format ("\"        <td align=\\\"center\\\">+\" +\n" +
+                                            odometer + " +\n" +
+                        "                    \"</td><td align=\\\"center\\\">\"+\n" +
+                                            consumption + "\n" +
+                        "                    \"</td><td align=\\\"center\\\">\"+\n" +
+                        "                    " +
+                                            lastReading + "\n" +
+                        "                    \"</td><td align=\\\"center\\\">345</td align=\\\"center\\\"><td align=\\\"center\\\">\"+\n" +
+                        "                    liters +\n" +
+                        "                    \"</td>\\n\" +\n" +
+                        "                    \"    </tr>\\n\" +", vehicle);
+                basichtml += vHTML;
+            }
+
+            String end ="</table>\n" +
+                    "</body>\n" +
+                    "</html>";
+                basichtml += end;
 
             String htmlDirection = "dashboard.html";
             File htmlFile = new File(htmlDirection);
